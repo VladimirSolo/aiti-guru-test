@@ -1,9 +1,12 @@
-import { Login } from "./components/Login";
+// import { Login } from "./components/Login";
+import { ProductsTable } from "./components/ProductsTable";
 
 function App() {
   return (
     <>
-      <Login />
+      {/* <Login /> */}
+
+      <ProductsTable />
     </>
   );
 }
