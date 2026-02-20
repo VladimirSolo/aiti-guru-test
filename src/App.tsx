@@ -1,9 +1,9 @@
-import "./styles/global.scss";
+import { Login } from "./components/Login";
 
 function App() {
   return (
     <>
-      <span>Start project</span>
+      <Login />
     </>
   );
 }
