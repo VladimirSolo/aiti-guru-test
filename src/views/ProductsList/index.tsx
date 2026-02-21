@@ -7,44 +7,31 @@ import {
   SearchOutlined,
   UserOutlined,
 } from "@ant-design/icons";
-import RefreshIcon from "../../assets/ArrowsClockwise.svg?react";
+import RefreshIcon from "@/assets/ArrowsClockwise.svg?react";
 import css from "./index.module.scss";
 import Column from "antd/es/table/Column";
+import { getProducts } from "@/api";
+import type { Product } from "@/api/products/_types";
+import { useQuery } from "@tanstack/react-query";
+import { useDebounce } from "@/hooks/useDebounce";
+import { removeExtraSpaces } from "@/utils/removeExtraSpaces";
 
 type TableRowSelection<T extends object = object> =
   TableProps<T>["rowSelection"];
 
-interface DataType {
-  key: React.Key;
-  name: string;
-  vendor: string;
-  article: string;
-  rating: number;
-  price: number;
-}
-
-const dataSource = Array.from<DataType>({ length: 46 }).map<DataType>(
-  (_, i) => ({
-    key: i,
-    name: `Product ${i}`,
-    vendor: `Vendor ${i}`,
-    article: `Article ${i}`,
-    rating: Math.floor(Math.random() * 5) + 1,
-    price: Math.floor(Math.random() * 10000) + 100,
-  }),
-);
-
-export const ProductsTable = () => {
+export const ProductsList = () => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+  const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(removeExtraSpaces(search));
 
-  const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
-    console.log("selectedRowKeys changed: ", newSelectedRowKeys);
-    setSelectedRowKeys(newSelectedRowKeys);
-  };
+  const { data, isLoading } = useQuery({
+    queryKey: ["products", debouncedSearch],
+    queryFn: () => getProducts(debouncedSearch),
+  });
 
-  const rowSelection: TableRowSelection<DataType> = {
+  const rowSelection: TableRowSelection<Product> = {
     selectedRowKeys,
-    onChange: onSelectChange,
+    onChange: setSelectedRowKeys,
   };
 
   return (
@@ -60,6 +47,8 @@ export const ProductsTable = () => {
 
         <Input
           allowClear
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
           className={css.searchInput}
           prefix={<SearchOutlined />}
           size="large"
@@ -79,53 +68,66 @@ export const ProductsTable = () => {
           </Flex>
         </Flex>
 
-        <Table<DataType>
+        <Table<Product>
           scroll={{ y: "calc(100vh - 400px)" }}
           rowSelection={rowSelection}
-          dataSource={dataSource}
+          dataSource={data?.products ?? []}
+          loading={isLoading}
+          rowKey="id"
         >
-          <Column<DataType>
-            key="name"
+          <Column<Product>
+            key="title"
             ellipsis
             render={(_: unknown, row) => (
               <Flex align="center" gap={12}>
                 <Avatar shape="square" size={48} icon={<UserOutlined />} />
-                <span>{row.name}</span>
+                <Flex vertical align="start">
+                  <span>{row.title}</span>
+                  <span>{row.category}</span>
+                </Flex>
               </Flex>
             )}
             title="Наименование"
+            width={300}
           />
-          <Column<DataType>
-            key="vendor"
+          <Column<Product>
+            key="brand"
             ellipsis
-            render={(_: unknown, row) => <span>{row.vendor}</span>}
+            render={(_: unknown, row) => <span>{row.brand}</span>}
             title="Вендор"
           />
-          <Column<DataType>
-            key="article"
+          <Column<Product>
+            key="sku"
             ellipsis
-            render={(_: unknown, row) => <span>{row.article}</span>}
+            render={(_: unknown, row) => <span>{row.sku}</span>}
             title="Артикул"
           />
-          <Column<DataType>
+          <Column<Product>
             key="rating"
             ellipsis
-            render={(_: unknown, row) => <span>{row.rating}</span>}
+            render={(_: unknown, row) => (
+              <>
+                <Typography.Text type={row.rating < 3 ? "danger" : undefined}>
+                  {row.rating}
+                </Typography.Text>
+                <span>/5</span>
+              </>
+            )}
             title="Оценка"
           />
-          <Column<DataType>
+          <Column<Product>
             key="price"
             ellipsis
             render={(_: unknown, row) => <span>{row.price} ₽</span>}
             title="Цена, ₽"
           />
-          <Column<DataType>
+          <Column<Product>
             key="add"
             ellipsis
             render={() => <button className={css.addBtn}>+</button>}
             width={100}
           />
-          <Column<DataType>
+          <Column<Product>
             key="info"
             ellipsis
             render={() => (

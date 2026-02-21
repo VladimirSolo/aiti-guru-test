@@ -8,15 +8,15 @@ import {
 import { PrivateRoute } from "./PrivateRoute";
 import { PublicRoute } from "./PublicRoute";
 import { NotFound } from "@/components/NotFound";
-import { ProductsTable } from "@/components/ProductsTable";
-import { Login } from "@/components/Login";
+import { ProductsList } from "@/views/ProductsList";
+import { Login } from "@/views/Login";
 import { FullErrorPage } from "@/components/FullErrorPage";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route>
       <Route element={<PrivateRoute />}>
-        <Route path="/products" element={<ProductsTable />} />
+        <Route path="/products" element={<ProductsList />} />
       </Route>
       <Route element={<PublicRoute />}>
         <Route path="/login" element={<Login />} />
