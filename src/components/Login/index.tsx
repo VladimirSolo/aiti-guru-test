@@ -7,12 +7,14 @@ import {
   Form,
   Input,
   Typography,
+  notification,
 } from "antd";
-import type { FormProps } from "antd";
 import css from "./index.module.scss";
 import { LockOutlined, UserOutlined } from "@ant-design/icons";
 import LoginFormIcon from "../../assets/Login.svg?react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { login } from "@/api";
 
 const { Title, Paragraph } = Typography;
 
@@ -24,15 +26,38 @@ type FieldType = {
 
 export const Login = () => {
   const [isSignIn, setIsSignIn] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
-  const onFinish: FormProps<FieldType>["onFinish"] = (values) => {
-    console.log("Success:", values);
-  };
+  const onFinish = async (values: FieldType) => {
+    setLoading(true);
 
-  const onFinishFailed: FormProps<FieldType>["onFinishFailed"] = (
-    errorInfo,
-  ) => {
-    console.log("Failed:", errorInfo);
+    try {
+      const data = await login({
+        username: values.username,
+        password: values.password,
+      });
+
+      const storage = values.remember ? localStorage : sessionStorage;
+
+      storage.setItem("user", JSON.stringify(data));
+
+      navigate("/products");
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        notification.error({
+          message: "Ошибка авторизации",
+          description: error.message,
+        });
+      } else {
+        notification.error({
+          message: "Ошибка",
+          description: "Неизвестная ошибка",
+        });
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -52,7 +77,6 @@ export const Login = () => {
           name="login"
           initialValues={{ remember: true }}
           onFinish={onFinish}
-          onFinishFailed={onFinishFailed}
           autoComplete="off"
           layout="vertical"
         >
@@ -81,7 +105,13 @@ export const Login = () => {
           </Form.Item>
 
           <Form.Item>
-            <Button block size="large" type="primary" htmlType="submit">
+            <Button
+              loading={loading}
+              block
+              size="large"
+              type="primary"
+              htmlType="submit"
+            >
               {isSignIn ? "Войти" : "Создать"}
             </Button>
           </Form.Item>

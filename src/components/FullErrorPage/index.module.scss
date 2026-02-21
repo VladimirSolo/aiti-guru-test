@@ -1,0 +1,11 @@
+.fullErrorPage {
+  min-height: 100vh;
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin: 24px;
+    height: 100vh;
+  }
+}

@@ -1,14 +1,7 @@
-// import { Login } from "./components/Login";
-import { ProductsTable } from "./components/ProductsTable";
+import { AppRouter } from "./routes/AppRouter";
 
 function App() {
-  return (
-    <>
-      {/* <Login /> */}
-
-      <ProductsTable />
-    </>
-  );
+  return <AppRouter />;
 }
 
 export default App;
