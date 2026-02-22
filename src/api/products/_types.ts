@@ -14,3 +14,9 @@ export type Response = {
   skip: number;
   limit: number;
 }
+
+export type Params = {
+  search?: string;
+  sortBy?: string;
+  order?: "asc" | "desc";
+};

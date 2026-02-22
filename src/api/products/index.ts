@@ -1,14 +1,23 @@
-import type { Response } from "./_types";
+import type { Params, Response } from "./_types";
 
 export async function getProducts(
-  search?: string,
+  params?: Params,
 ): Promise<Response> {
-  const endpoint = search?.trim()
-    ? `/api/products/search?q=${encodeURIComponent(search)}`
+  const { search, sortBy, order } = params || {};
+  const searchParams = new URLSearchParams();
+
+  if (sortBy && order) {
+    searchParams.append("sortBy", sortBy);
+    searchParams.append("order", order);
+  }
+
+  const basePath = search?.trim()
+    ? "/api/products/search"
     : "/api/products";
 
-  const response = await fetch(endpoint);
+  const url = `${basePath}?${searchParams.toString()}`;
 
+  const response = await fetch(url);
   const data = await response.json();
 
   if (!response.ok) {

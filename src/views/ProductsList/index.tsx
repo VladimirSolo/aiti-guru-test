@@ -15,22 +15,25 @@ import type { Product } from "@/api/products/_types";
 import { useQuery } from "@tanstack/react-query";
 import { useDebounce } from "@/hooks/useDebounce";
 import { removeExtraSpaces } from "@/utils/removeExtraSpaces";
-import type { SorterResult } from "antd/es/table/interface";
+import { useSortParams } from "./_hooks/useSortParams";
 
 type TableRowSelection<T extends object = object> =
   TableProps<T>["rowSelection"];
 
-type Sorts = SorterResult<Product>;
-
 export const ProductsList = () => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [search, setSearch] = useState("");
-  const [sorter, setSorter] = useState<Sorts>({});
   const debouncedSearch = useDebounce(removeExtraSpaces(search));
+  const { sortBy, order, sorter, updateParams } = useSortParams();
 
   const { data, isLoading } = useQuery({
-    queryKey: ["products", debouncedSearch],
-    queryFn: () => getProducts(debouncedSearch),
+    queryKey: ["products", debouncedSearch, sorter?.field, sorter.order],
+    queryFn: () =>
+      getProducts({
+        search: debouncedSearch,
+        sortBy,
+        order,
+      }),
   });
 
   const rowSelection: TableRowSelection<Product> = {
@@ -52,7 +55,7 @@ export const ProductsList = () => {
         <Input
           allowClear
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(event) => setSearch(event.target.value)}
           className={css.searchInput}
           prefix={<SearchOutlined />}
           size="large"
@@ -79,7 +82,17 @@ export const ProductsList = () => {
           loading={isLoading}
           rowKey="id"
           onChange={(_, __, sorter) => {
-            setSorter(Array.isArray(sorter) ? sorter[0] : sorter);
+            const single = Array.isArray(sorter) ? sorter[0] : sorter;
+
+            updateParams({
+              field: single.columnKey as string | undefined,
+              order:
+                single?.order === "ascend"
+                  ? "asc"
+                  : single?.order === "descend"
+                    ? "desc"
+                    : undefined,
+            });
           }}
         >
           <Column<Product>
@@ -112,8 +125,8 @@ export const ProductsList = () => {
           <Column<Product>
             key="rating"
             ellipsis
-            sorter={(a, b) => a.rating - b.rating}
-            sortOrder={sorter.columnKey === "rating" ? sorter.order : null}
+            sorter
+            sortOrder={sorter.order}
             render={(_: unknown, row) => (
               <>
                 <Typography.Text type={row.rating < 3 ? "danger" : undefined}>
@@ -127,8 +140,8 @@ export const ProductsList = () => {
           <Column<Product>
             key="price"
             ellipsis
-            sorter={(a, b) => a.price - b.price}
-            sortOrder={sorter.columnKey === "price" ? sorter.order : null}
+            sorter
+            sortOrder={sorter.order}
             render={(_: unknown, row) => <span>{row.price} ₽</span>}
             title="Цена, ₽"
           />
