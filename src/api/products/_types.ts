@@ -19,4 +19,6 @@ export type Params = {
   search?: string;
   sortBy?: string;
   order?: "asc" | "desc";
+  limit?: number;
+  skip?: number;
 };

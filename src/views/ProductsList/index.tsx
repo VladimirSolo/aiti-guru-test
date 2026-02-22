@@ -15,7 +15,7 @@ import type { Product } from "@/api/products/_types";
 import { useQuery } from "@tanstack/react-query";
 import { useDebounce } from "@/hooks/useDebounce";
 import { removeExtraSpaces } from "@/utils/removeExtraSpaces";
-import { useSortParams } from "./_hooks/useSortParams";
+import { useTableParams } from "./_hooks/useTableParams";
 
 type TableRowSelection<T extends object = object> =
   TableProps<T>["rowSelection"];
@@ -24,15 +24,25 @@ export const ProductsList = () => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(removeExtraSpaces(search));
-  const { sortBy, order, sorter, updateParams } = useSortParams();
+  const { sortBy, order, sorter, currentPage, pageSize, updateParams } =
+    useTableParams();
 
   const { data, isLoading } = useQuery({
-    queryKey: ["products", debouncedSearch, sorter?.field, sorter.order],
+    queryKey: [
+      "products",
+      debouncedSearch,
+      sorter?.field,
+      sorter.order,
+      currentPage,
+      pageSize,
+    ],
     queryFn: () =>
       getProducts({
         search: debouncedSearch,
         sortBy,
         order,
+        limit: pageSize,
+        skip: (currentPage - 1) * pageSize,
       }),
   });
 
@@ -81,11 +91,19 @@ export const ProductsList = () => {
           dataSource={data?.products ?? []}
           loading={isLoading}
           rowKey="id"
-          onChange={(_, __, sorter) => {
-            const single = Array.isArray(sorter) ? sorter[0] : sorter;
+          pagination={{
+            current: currentPage,
+            pageSize,
+            total: data?.total,
+            showSizeChanger: true,
+          }}
+          onChange={(pagination, _, sorterArg) => {
+            const single = Array.isArray(sorterArg) ? sorterArg[0] : sorterArg;
 
             updateParams({
-              field: single.columnKey as string | undefined,
+              currentPage: pagination.current,
+              pageSize: pagination.pageSize,
+              field: single?.field as string | undefined,
               order:
                 single?.order === "ascend"
                   ? "asc"

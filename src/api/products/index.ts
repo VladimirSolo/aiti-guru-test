@@ -3,12 +3,20 @@ import type { Params, Response } from "./_types";
 export async function getProducts(
   params?: Params,
 ): Promise<Response> {
-  const { search, sortBy, order } = params || {};
+  const { search, sortBy, order, limit, skip } = params || {};
   const searchParams = new URLSearchParams();
 
   if (sortBy && order) {
     searchParams.append("sortBy", sortBy);
     searchParams.append("order", order);
+  }
+
+  if (limit !== undefined) {
+    searchParams.append("limit", limit.toString());
+  }
+
+  if (skip !== undefined) {
+    searchParams.append("skip", skip.toString());
   }
 
   const basePath = search?.trim()
