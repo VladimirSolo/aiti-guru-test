@@ -15,13 +15,17 @@ import type { Product } from "@/api/products/_types";
 import { useQuery } from "@tanstack/react-query";
 import { useDebounce } from "@/hooks/useDebounce";
 import { removeExtraSpaces } from "@/utils/removeExtraSpaces";
+import type { SorterResult } from "antd/es/table/interface";
 
 type TableRowSelection<T extends object = object> =
   TableProps<T>["rowSelection"];
 
+type Sorts = SorterResult<Product>;
+
 export const ProductsList = () => {
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [search, setSearch] = useState("");
+  const [sorter, setSorter] = useState<Sorts>({});
   const debouncedSearch = useDebounce(removeExtraSpaces(search));
 
   const { data, isLoading } = useQuery({
@@ -74,6 +78,9 @@ export const ProductsList = () => {
           dataSource={data?.products ?? []}
           loading={isLoading}
           rowKey="id"
+          onChange={(_, __, sorter) => {
+            setSorter(Array.isArray(sorter) ? sorter[0] : sorter);
+          }}
         >
           <Column<Product>
             key="title"
@@ -105,6 +112,8 @@ export const ProductsList = () => {
           <Column<Product>
             key="rating"
             ellipsis
+            sorter={(a, b) => a.rating - b.rating}
+            sortOrder={sorter.columnKey === "rating" ? sorter.order : null}
             render={(_: unknown, row) => (
               <>
                 <Typography.Text type={row.rating < 3 ? "danger" : undefined}>
@@ -118,6 +127,8 @@ export const ProductsList = () => {
           <Column<Product>
             key="price"
             ellipsis
+            sorter={(a, b) => a.price - b.price}
+            sortOrder={sorter.columnKey === "price" ? sorter.order : null}
             render={(_: unknown, row) => <span>{row.price} ₽</span>}
             title="Цена, ₽"
           />
