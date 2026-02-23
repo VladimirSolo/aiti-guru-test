@@ -5,7 +5,7 @@ export async function getProducts(
 ): Promise<Response> {
   const { search, sortBy, order, limit, skip } = params || {};
   const searchParams = new URLSearchParams();
-  console.log(params);
+
   if (search?.trim()) {
     searchParams.append("q", search);
   }
@@ -26,7 +26,7 @@ export async function getProducts(
   const basePath = search?.trim()
     ? "/api/products/search"
     : "/api/products";
-  console.log(basePath)
+
   const url = `${basePath}?${searchParams.toString()}`;
 
   const response = await fetch(url);
