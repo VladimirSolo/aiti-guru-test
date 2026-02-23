@@ -2,9 +2,8 @@ import { useState } from "react";
 import { Button, Flex, Input, Typography } from "antd";
 import { PlusCircleOutlined, SearchOutlined } from "@ant-design/icons";
 import RefreshIcon from "@/assets/ArrowsClockwise.svg?react";
+import { AddProductModal, ProductsTable } from "./_components";
 import css from "./index.module.scss";
-import { AddProductModal } from "./_components/AddProductModal";
-import { ProductsTable } from "./_components/ProductsTable";
 
 export const ProductsList = () => {
   const [search, setSearch] = useState("");
