@@ -1,0 +1,12 @@
+export function buildUrl(basePath: string, params: Record<string, string | number | undefined>): string {
+  const searchParams = new URLSearchParams();
+
+  for (const [key, value] of Object.entries(params)) {
+    if (value !== undefined && value !== "") {
+      searchParams.append(key, value.toString());
+    }
+  }
+
+  const query = searchParams.toString();
+  return query ? `${basePath}?${query}` : basePath;
+}

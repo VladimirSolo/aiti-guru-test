@@ -1,33 +1,18 @@
 import type { Params, Response } from "./_types";
+import { buildUrl } from "./_utils";
 
-export async function getProducts(
-  params?: Params,
-): Promise<Response> {
+export async function getProducts(params?: Params): Promise<Response> {
   const { search, sortBy, order, limit, skip } = params || {};
-  const searchParams = new URLSearchParams();
 
-  if (search?.trim()) {
-    searchParams.append("q", search);
-  }
+  const basePath = search?.trim() ? "/api/products/search" : "/api/products";
 
-  if (sortBy && order) {
-    searchParams.append("sortBy", sortBy);
-    searchParams.append("order", order);
-  }
-
-  if (limit !== undefined) {
-    searchParams.append("limit", limit.toString());
-  }
-
-  if (skip !== undefined) {
-    searchParams.append("skip", skip.toString());
-  }
-
-  const basePath = search?.trim()
-    ? "/api/products/search"
-    : "/api/products";
-
-  const url = `${basePath}?${searchParams.toString()}`;
+  const url = buildUrl(basePath, {
+    q: search?.trim(),
+    sortBy: sortBy && order ? sortBy : undefined,
+    order: sortBy && order ? order : undefined,
+    limit,
+    skip,
+  });
 
   const response = await fetch(url);
   const data = await response.json();

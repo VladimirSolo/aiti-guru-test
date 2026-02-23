@@ -65,7 +65,7 @@ export const ProductsTable = ({ search }: Props) => {
       }}
       onChange={(pagination, _, sorterArg) => {
         const single = Array.isArray(sorterArg) ? sorterArg[0] : sorterArg;
-        console.log(sorterArg);
+
         updateParams({
           currentPage: pagination.current,
           pageSize: pagination.pageSize,
