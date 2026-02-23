@@ -1,4 +1,4 @@
-import type { Product } from '@/api/products/_types';
+import type { Product } from '@/types';
 import { CURRENT_PAGE, PAGE_SIZE } from '@/constants';
 import type { SorterResult } from 'antd/es/table/interface';
 import { useSearchParams } from 'react-router-dom';

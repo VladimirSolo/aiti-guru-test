@@ -1,12 +1,4 @@
-export type Product = {
-  id: number;
-  title: string;
-  brand: string;
-  sku?: string;
-  rating: number;
-  price: number;
-  category?: string;
-}
+import type { Product } from "@/types";
 
 export type Response = {
   products: Product[];
